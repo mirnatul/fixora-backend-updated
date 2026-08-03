@@ -64,15 +64,13 @@ const deleteService = async (userId: string, serviceId: string) => {
 
 // get service with filter (type/category, location, rating)
 const getService = async (query: IServiceQuery) => {
+    // console.log("FILTER VERSION: NEW CODE");
     const andCondition: ServiceWhereInput[] = [];
 
     const page = Number(query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
 
-    // console.log(page, limit, skip, query);
-
-    // Search
     if (query.searchTerm) {
         andCondition.push({
             OR: [
@@ -121,8 +119,12 @@ const getService = async (query: IServiceQuery) => {
     if (query.minPrice || query.maxPrice) {
         andCondition.push({
             price: {
-                ...(query.minPrice && { gte: Number(query.minPrice) }),
-                ...(query.maxPrice && { lte: Number(query.maxPrice) }),
+                ...(query.minPrice && {
+                    gte: Number(query.minPrice),
+                }),
+                ...(query.maxPrice && {
+                    lte: Number(query.maxPrice),
+                }),
             },
         });
     }
@@ -135,11 +137,16 @@ const getService = async (query: IServiceQuery) => {
         });
     }
 
-    if (query.active) {
+    if (query.active !== undefined) {
         andCondition.push({
             active: query.active === "true",
         });
     }
+
+    // Public services should only show active services
+    andCondition.push({
+        active: true,
+    });
 
     const where: ServiceWhereInput = {
         AND: andCondition,
@@ -157,16 +164,14 @@ const getService = async (query: IServiceQuery) => {
 
     const [services, total] = await Promise.all([
         prisma.service.findMany({
-            where: { active: true },
+            where,
             orderBy,
             skip,
             take: limit,
         }),
+
         prisma.service.count({
-            where: {
-                ...where,
-                active: true,
-            },
+            where,
         }),
     ]);
 
