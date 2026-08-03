@@ -1,0 +1,35 @@
+model User {
+    id           String  @id @default(uuid())
+    name         String
+    email        String  @unique
+    password     String
+    phone        String
+    profileImage String?
+    address      String
+    city         String
+
+    stripeCustomerId String? @unique
+
+    role   Role         @default(CUSTOMER)
+    status ActiveStatus @default(ACTIVE)
+
+    technicianProfile TechnicianProfile?
+    booking           Booking[]
+    payment           Payment[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("users")
+}
+
+enum Role {
+    CUSTOMER
+    TECHNICIAN
+    ADMIN
+}
+
+enum ActiveStatus {
+    ACTIVE
+    BANNED
+}

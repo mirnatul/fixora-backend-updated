@@ -1,0 +1,12 @@
+model Availability {
+    id String @id @default(uuid())
+
+    date       DateTime
+    bookedSlot Int[]
+
+    technicianId String
+    technician   TechnicianProfile @relation(fields: [technicianId], references: [id])
+
+    @@unique([technicianId, date])
+    @@map("availability")
+}
