@@ -12,13 +12,19 @@ import { reviewRoute } from "./modules/review/review.route";
 import { paymentRoute } from "./modules/payment/payment.route";
 import { notFound } from "./middlewares/notFound";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
+import { cloudinaryRoutes } from "./modules/cloudinary/cloudinary.route";
 
 const app: Application = express();
 
 // middleware
 
 // for cookies credentials true (learn more)
-app.use(cors({ origin: config.app_url, credentials: true }));
+
+const allowedOrigins = [
+    "http://localhost:3000",
+    config.app_url!,
+];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 // webhook
 // the link will just apply the raw and exclude json and then match the route
@@ -48,6 +54,8 @@ app.use("/api/bookings", bookingRoute);
 app.use("/api/review", reviewRoute);
 
 app.use("/api/payment", paymentRoute);
+
+app.use("/api/cloudinary", cloudinaryRoutes);
 
 
 app.use(notFound)
