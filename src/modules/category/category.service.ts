@@ -4,12 +4,16 @@ import { prisma } from "../../lib/prisma";
 interface CategoryData {
     name: string;
     description: string;
+    imageUrl: string;
+    imagePublicId: string;
 }
 
 const createCategory = async (payload: CategoryData) => {
+    console.log("🔥 CATEGORY REQUEST BODY:", payload);
     const category = await prisma.category.create({
         data: { ...payload }
     })
+    console.log("✅ CATEGORY CREATED:", category);
 
     return category;
 }
