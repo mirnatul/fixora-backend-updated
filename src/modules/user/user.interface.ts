@@ -4,7 +4,7 @@ export interface RegisterUserPayload {
     name: string;
     email: string;
     password: string;
-    profileImage?: string;
+    imageUrl?: string;
     phone: string;
     address: string;
     city: string;
@@ -18,7 +18,7 @@ export interface UpdateStatusPayload {
 export interface IUpdateUser {
     name?: string;
     phone?: string;
-    profileImage?: string;
+    imageUrl?: string;
     address?: string;
     city?: string;
 }

@@ -38,7 +38,7 @@ const getAllTechnician = async (query: TechnicianQuery) => {
                     email: true,
                     phone: true,
                     city: true,
-                    profileImage: true
+                    imageUrl: true
                 }
             }
         }
@@ -145,7 +145,7 @@ const getTechnicianProfileWithReview = async (technicianId: string) => {
                     email: true,
                     phone: true,
                     city: true,
-                    profileImage: true,
+                    imageUrl: true,
                 },
             },
 
@@ -173,7 +173,7 @@ const getTechnicianProfileWithReview = async (technicianId: string) => {
                         select: {
                             id: true,
                             name: true,
-                            profileImage: true,
+                            imageUrl: true,
                         },
                     },
                 },
@@ -297,7 +297,7 @@ const topTechnicians = async () => {
                     email: true,
                     phone: true,
                     city: true,
-                    profileImage: true
+                    imageUrl: true
                 }
             }
         }

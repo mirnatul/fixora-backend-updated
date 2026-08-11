@@ -7,6 +7,7 @@ export interface IService {
     duration: number;
     location: string;
     categoryId: string;  // in frontend dropdown
+    imageUrl: string;
 }
 
 export interface IServiceQuery {
@@ -24,6 +25,7 @@ export interface IUpdateService {
     duration?: number;
     location?: string;
     active?: boolean;
+    imageUrl?: string;
 }
 
 

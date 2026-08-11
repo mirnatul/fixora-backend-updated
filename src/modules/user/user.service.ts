@@ -6,7 +6,7 @@ import { IUpdateUser, RegisterUserPayload, UpdateStatusPayload } from "./user.in
 
 
 const registerUserIntoDB = async (payload: RegisterUserPayload) => {
-    const { name, email, password, profileImage, phone, address, city, role } = payload;
+    const { name, email, password, imageUrl, phone, address, city, role } = payload;
     const isUserExist = await prisma.user.findUnique({
         where: { email }
     })
@@ -19,7 +19,7 @@ const registerUserIntoDB = async (payload: RegisterUserPayload) => {
 
     // user create and profile create (only if the user is technician)
     const createdUser = await prisma.user.create({
-        data: { name, email, password: hashedPassword, profileImage, phone, address, city, role }
+        data: { name, email, password: hashedPassword, imageUrl, phone, address, city, role }
     })
     if (role === Role.TECHNICIAN) {
         await prisma.technicianProfile.create({

@@ -6,7 +6,7 @@ export interface ILoginUser {
 export interface IUpdateUser {
     name?: string;
     phone?: string;
-    profileImage?: string;
+    imageUrl?: string;
     address?: string;
     city?: string;
 }
