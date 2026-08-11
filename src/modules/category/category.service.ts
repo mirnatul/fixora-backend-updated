@@ -9,11 +9,9 @@ interface CategoryData {
 }
 
 const createCategory = async (payload: CategoryData) => {
-    console.log("🔥 CATEGORY REQUEST BODY:", payload);
     const category = await prisma.category.create({
         data: { ...payload }
     })
-    console.log("✅ CATEGORY CREATED:", category);
 
     return category;
 }
@@ -26,9 +24,7 @@ const updateCategory = async (
         where: {
             id: categoryId,
         },
-        data: {
-            ...payload,
-        },
+        data: payload,
     });
 
     return category;

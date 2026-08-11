@@ -4,10 +4,12 @@ model Service {
     title       String
     description String
     price       Int
-    duration    Int
     location    String
     rating      Decimal @default(0) @db.Decimal(2, 1)
     active      Boolean @default(true)
+
+    imageUrl      String?
+    imagePublicId String?
 
     technicianId String
     technician   TechnicianProfile @relation(fields: [technicianId], references: [id])

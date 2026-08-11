@@ -6,7 +6,6 @@ import { categoryService } from "./category.service";
 import { Role } from "../../../generated/prisma/enums";
 
 const createCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // console.log("🔥 CATEGORY REQUEST BODY:", req.body);
     const payload = req.body;
     const result = await categoryService.createCategory(payload);
 
