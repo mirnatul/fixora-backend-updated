@@ -14,6 +14,7 @@ model User {
     role   Role         @default(CUSTOMER)
     status ActiveStatus @default(ACTIVE)
 
+    auths             Auth?
     technicianProfile TechnicianProfile?
     booking           Booking[]
     payment           Payment[]

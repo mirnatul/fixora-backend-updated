@@ -1,27 +1,39 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
 import config from "../../config";
-import { ActiveStatus, Role } from "../../../generated/prisma/enums";
+import { ActiveStatus, AuthProvider, Role } from "../../../generated/prisma/enums";
 import { IUpdateUser, RegisterUserPayload, UpdateStatusPayload } from "./user.interface";
+import { jwtUtils } from "../../utils/jwt";
+import { SignOptions } from "jsonwebtoken";
 
 
 const registerUserIntoDB = async (payload: RegisterUserPayload) => {
-    const { name, email, password, imageUrl, phone, address, city, role } = payload;
+    // const { name, email, password, imageUrl, phone, address, city, role } = payload;
     const isUserExist = await prisma.user.findUnique({
-        where: { email }
+        where: { email: payload.email }
     })
     if (isUserExist) {
         throw new Error("User with this email already exists");
     }
 
     // hash password
-    const hashedPassword = await bcrypt.hash(password, Number(config.bcrypt_salt_round));
+    const hashedPassword = await bcrypt.hash(payload.password, Number(config.bcrypt_salt_round));
 
     // user create and profile create (only if the user is technician)
     const createdUser = await prisma.user.create({
-        data: { name, email, password: hashedPassword, imageUrl, phone, address, city, role }
+        // data: { name, email, password: hashedPassword, imageUrl, phone, address, city, role }
+        data: {
+            ...payload,
+            password: hashedPassword,
+            auths: {
+                create: {
+                    provider: AuthProvider.CREDENTIALS,
+                    providerId: payload.email
+                }
+            }
+        }
     })
-    if (role === Role.TECHNICIAN) {
+    if (payload.role === Role.TECHNICIAN) {
         await prisma.technicianProfile.create({
             data: { userId: createdUser.id }
         })
@@ -32,7 +44,32 @@ const registerUserIntoDB = async (payload: RegisterUserPayload) => {
         omit: { password: true }
     })
 
-    return user;
+    if (!user) {
+        throw Error("User register failed, please try again")
+    }
+
+
+    const jwtPayload = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+    }
+
+    // access token
+    const accessToken = jwtUtils.createToken(
+        jwtPayload,
+        config.jwt_access_secret,
+        config.jwt_access_expires_in as SignOptions
+    )
+
+    const refreshToken = jwtUtils.createToken(
+        jwtPayload,
+        config.jwt_refresh_secret,
+        config.jwt_refresh_expires_in as SignOptions
+    )
+
+    return { user, accessToken, refreshToken };
 }
 
 // admin only
