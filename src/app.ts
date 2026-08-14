@@ -13,6 +13,8 @@ import { paymentRoute } from "./modules/payment/payment.route";
 import { notFound } from "./middlewares/notFound";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { cloudinaryRoutes } from "./modules/cloudinary/cloudinary.route";
+import passport from "passport"
+import "./config/passport"
 
 const app: Application = express();
 
@@ -34,27 +36,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// for passport middleware
+app.use(passport.initialize());
+
+
 app.get("/", async (req: Request, res: Response) => {
     res.send("Hello, Prisma!");
 })
 
 // register
 app.use("/api/users", userRoutes);
-
 app.use("/api/auth", authRoutes);
-
 app.use("/api/category", categoryRoute);
-
 app.use("/api/technician", technicianRoutes);
-
 app.use("/api/services", serviceRoutes);
-
 app.use("/api/bookings", bookingRoute);
-
 app.use("/api/review", reviewRoute);
-
 app.use("/api/payment", paymentRoute);
-
 app.use("/api/cloudinary", cloudinaryRoutes);
 
 

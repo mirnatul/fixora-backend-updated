@@ -3,38 +3,32 @@ import { catchAsync } from "../../utils/catchAsync";
 import { authService } from "./auth.service";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from 'http-status';
+import passport from "passport";
+import { createUserTokens } from "../../helpers/authToken";
+import { setAuthCookie } from "../../helpers/authCookies";
 
 
 const loginUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const payload = req.body;
-    const { accessToken, refreshToken } = await authService.loginUser(payload);
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
+        try {
+            if (err) { return next(err) }
+            if (!user) { return next(new Error(info?.message || "Invalid credential")) }
+            const userTokens = createUserTokens(user)
 
+            setAuthCookie(res, userTokens)
 
-    // set the tokens to cookies
-    res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "none",
-        maxAge: 1000 * 60 * 60 * 24 // 1 day
-    })
+            sendResponse(res, {
+                success: true,
+                statusCode: httpStatus.OK,
+                message: "Login successfull",
+                data: { accessToken: userTokens.accessToken, refreshToken: userTokens.refreshToken }
 
-    res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "none",
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-    })
+            })
 
-
-
-
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "Login successfull",
-        data: { accessToken, refreshToken }
-
-    })
+        } catch (error) {
+            next(error)
+        }
+    })(req, res, next)
 })
 
 const getMyProfile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

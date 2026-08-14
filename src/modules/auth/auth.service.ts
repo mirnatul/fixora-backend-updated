@@ -5,46 +5,6 @@ import { JwtPayload, SignOptions } from "jsonwebtoken"
 import config from "../../config";
 import { jwtUtils } from "../../utils/jwt";
 
-const loginUser = async (payload: ILoginUser) => {
-    const { email, password } = payload;
-
-    const user = await prisma.user.findUniqueOrThrow({
-        where: { email }
-    })
-
-    // password matching
-    const isPasswordMatched = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordMatched) {
-        throw new Error("Password is incorrect")
-    }
-
-    // jwt
-
-    // payload
-    const jwtPayload = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-    }
-
-    // access token
-    const accessToken = jwtUtils.createToken(
-        jwtPayload,
-        config.jwt_access_secret,
-        config.jwt_access_expires_in as SignOptions
-    )
-
-    const refreshToken = jwtUtils.createToken(
-        jwtPayload,
-        config.jwt_refresh_secret,
-        config.jwt_refresh_expires_in as SignOptions
-    )
-
-
-    return { accessToken, refreshToken };
-}
 
 const getMyProfileFromDB = async (userId: string) => {
     const user = await prisma.user.findUniqueOrThrow({
@@ -134,7 +94,6 @@ const refreshToken = async (refreshToken: string) => {
 
 
 export const authService = {
-    loginUser,
     getMyProfileFromDB,
     updateMyInfo,
     refreshToken,
