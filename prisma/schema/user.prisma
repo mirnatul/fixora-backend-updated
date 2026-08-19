@@ -2,19 +2,21 @@ model User {
     id            String  @id @default(uuid())
     name          String
     email         String  @unique
-    password      String
-    phone         String
+    password      String?
+    phone         String?
     imageUrl      String?
     imagePublicId String?
-    address       String
-    city          String
+    address       String?
+    city          String?
+
+    googleId     String?
+    authProvider AuthProvider @default(CREDENTIAL)
 
     stripeCustomerId String? @unique
 
     role   Role         @default(CUSTOMER)
     status ActiveStatus @default(ACTIVE)
 
-    auths             Auth?
     technicianProfile TechnicianProfile?
     booking           Booking[]
     payment           Payment[]
@@ -34,4 +36,9 @@ enum Role {
 enum ActiveStatus {
     ACTIVE
     BANNED
+}
+
+enum AuthProvider {
+    CREDENTIAL
+    GOOGLE
 }

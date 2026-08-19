@@ -12,7 +12,7 @@ const cookieOptions = {
     secure: config.node_env === "production", // http / https
     sameSite:
         config.node_env === "production" ? ("none" as const) : ("lax" as const),
-};  // none / strict / lax
+};
 
 export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
     if (tokenInfo.accessToken) {
@@ -28,6 +28,7 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
     }
+    console.log("COOKIES SET");
 };
 
 export const clearAuthCookie = (res: Response) => {

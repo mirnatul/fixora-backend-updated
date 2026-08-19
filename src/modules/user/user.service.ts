@@ -25,12 +25,7 @@ const registerUserIntoDB = async (payload: RegisterUserPayload) => {
         data: {
             ...payload,
             password: hashedPassword,
-            auths: {
-                create: {
-                    provider: AuthProvider.CREDENTIALS,
-                    providerId: payload.email
-                }
-            }
+            authProvider: AuthProvider.CREDENTIAL,
         }
     })
     if (payload.role === Role.TECHNICIAN) {

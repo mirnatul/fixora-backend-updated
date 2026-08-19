@@ -13,8 +13,6 @@ import { paymentRoute } from "./modules/payment/payment.route";
 import { notFound } from "./middlewares/notFound";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { cloudinaryRoutes } from "./modules/cloudinary/cloudinary.route";
-import passport from "passport"
-import "./config/passport"
 
 const app: Application = express();
 
@@ -28,6 +26,7 @@ const allowedOrigins = [
 ];
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
+
 // webhook
 // the link will just apply the raw and exclude json and then match the route
 app.use("/api/payment/webhook", express.raw({ type: 'application/json' }))
@@ -36,8 +35,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// for passport middleware
-app.use(passport.initialize());
 
 
 app.get("/", async (req: Request, res: Response) => {

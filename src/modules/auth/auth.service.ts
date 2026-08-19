@@ -4,7 +4,38 @@ import { ILoginUser, IUpdateUser } from "./auth.interface"
 import { JwtPayload, SignOptions } from "jsonwebtoken"
 import config from "../../config";
 import { jwtUtils } from "../../utils/jwt";
+import { createUserTokens } from "../../helpers/authToken";
+import { TokenPayload } from "google-auth-library";
+import { googleClient } from "../../lib/googleAuth";
+import { AuthProvider, Role } from "../../../generated/prisma/enums";
 
+
+
+const loginUser = async (payload: ILoginUser) => {
+    const { email, password } = payload;
+
+    const user = await prisma.user.findUniqueOrThrow({
+        where: { email }
+    })
+
+    if (user.password === null && user.googleId !== null) {
+		throw new Error(
+			"User already has account register with google. Try to login with google",
+		);
+	}
+
+    // password matching
+    const isPasswordMatched = await bcrypt.compare(password, user.password as string);
+
+    if (!isPasswordMatched) {
+        throw new Error("Password is incorrect")
+    }
+
+    // jwt
+    const { accessToken, refreshToken } = createUserTokens(user)
+
+    return { accessToken, refreshToken };
+}
 
 const getMyProfileFromDB = async (userId: string) => {
     const user = await prisma.user.findUniqueOrThrow({
@@ -92,10 +123,110 @@ const refreshToken = async (refreshToken: string) => {
     }
 }
 
+export interface IGoogleLoginPayload {
+	idToken: string;
+}
+
+const googleLogin = async (payload: IGoogleLoginPayload) => {
+	// console.log("service hit");
+	let googleIdTokenPayload: TokenPayload | null | undefined = null;
+	try {
+		const ticket = await googleClient.verifyIdToken({
+			idToken: payload.idToken,
+			audience: config.google_client_id,
+		});
+
+		googleIdTokenPayload = ticket.getPayload();
+	} catch (error) {
+		console.log("Google ID Token Verification Failed", error);
+		throw new Error("Invalid or Expired Google ID Token");
+	}
+
+	if (!googleIdTokenPayload) {
+		throw new Error("Invalid or Expired Google ID Token");
+	}
+
+	const ifStudentExistWithGoogleAuth = await prisma.user.findUnique({
+		where: {
+			email: googleIdTokenPayload.email,
+			googleId: googleIdTokenPayload.sub,
+		},
+	});
+
+	if (!googleIdTokenPayload.email) {
+		throw new Error("Google email not found");
+	}
+	if (!googleIdTokenPayload.name) {
+		throw new Error("Google email username not found");
+	}
+
+	let user = ifStudentExistWithGoogleAuth;
+
+	if (!ifStudentExistWithGoogleAuth) {
+		const ifStudentExistWithCredential = await prisma.user.findUnique({
+			where: {
+				email: googleIdTokenPayload.email,
+				authProvider: AuthProvider.CREDENTIAL,
+			},
+		});
+		if (ifStudentExistWithCredential) {
+			// if (!ifStudentExistWithCredential.emailVerified) {
+			// 	throw new Error("Email not verified");
+			// }
+			// if (ifStudentExistWithCredential.status === UserStatus.BLOCKED) {
+			// 	throw new Error("User is blocked");
+			// }
+			// if (
+			// 	ifStudentExistWithCredential.isDeleted ||
+			// 	ifStudentExistWithCredential.status === UserStatus.DELETED
+			// ) {
+			// 	throw new Error("User is deleted");
+			// }
+
+			user = await prisma.user.update({
+				where: {
+					id: ifStudentExistWithCredential.id,
+				},
+				data: {
+					googleId: googleIdTokenPayload.sub,
+				},
+			});
+		} else {
+			// google register
+			user = await prisma.user.create({
+				data: {
+					name: googleIdTokenPayload.name,
+					email: googleIdTokenPayload.email,
+					role: Role.CUSTOMER,
+					googleId: googleIdTokenPayload.sub,
+					authProvider: AuthProvider.GOOGLE,
+				},
+			});
+		}
+	}
+
+	if (!user) {
+		throw new Error("User not found");
+	}
+
+	// if (user.status === UserStatus.BLOCKED) {
+	// 	throw new Error("User is blocked");
+	// }
+	// if (user.isDeleted || user.status === UserStatus.DELETED) {
+	// 	throw new Error("User is deleted");
+	// }
+
+    const { accessToken, refreshToken } = createUserTokens(user)
+
+	return { accessToken, refreshToken };
+};
+
 
 export const authService = {
+    loginUser,
     getMyProfileFromDB,
     updateMyInfo,
     refreshToken,
-    updateTechnicianInfo
+    updateTechnicianInfo,
+    googleLogin
 }

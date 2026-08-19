@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authController } from "./auth.controller";
 import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middlewares/auth";
+import passport from "passport";
 
 const router = Router();
 
@@ -13,4 +14,6 @@ router.put("/me/update", auth(Role.ADMIN, Role.TECHNICIAN, Role.CUSTOMER), authC
 router.put("/technician/profile", auth(Role.TECHNICIAN), authController.updateTechnicianInfo)
 
 router.post("/refresh-token", authController.refreshToken)
+router.post("/google", authController.googleLogin);
+
 export const authRoutes = router;
