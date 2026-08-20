@@ -5,6 +5,7 @@ import { ActiveStatus, AuthProvider, Role } from "../../../generated/prisma/enum
 import { IUpdateUser, RegisterUserPayload, UpdateStatusPayload } from "./user.interface";
 import { jwtUtils } from "../../utils/jwt";
 import { SignOptions } from "jsonwebtoken";
+import { createUserTokens } from "../../helpers/authToken";
 
 
 const registerUserIntoDB = async (payload: RegisterUserPayload) => {
@@ -43,26 +44,7 @@ const registerUserIntoDB = async (payload: RegisterUserPayload) => {
         throw Error("User register failed, please try again")
     }
 
-
-    const jwtPayload = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-    }
-
-    // access token
-    const accessToken = jwtUtils.createToken(
-        jwtPayload,
-        config.jwt_access_secret,
-        config.jwt_access_expires_in as SignOptions
-    )
-
-    const refreshToken = jwtUtils.createToken(
-        jwtPayload,
-        config.jwt_refresh_secret,
-        config.jwt_refresh_expires_in as SignOptions
-    )
+    const { accessToken, refreshToken } = createUserTokens(user)
 
     return { user, accessToken, refreshToken };
 }

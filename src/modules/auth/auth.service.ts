@@ -170,18 +170,6 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 			},
 		});
 		if (ifStudentExistWithCredential) {
-			// if (!ifStudentExistWithCredential.emailVerified) {
-			// 	throw new Error("Email not verified");
-			// }
-			// if (ifStudentExistWithCredential.status === UserStatus.BLOCKED) {
-			// 	throw new Error("User is blocked");
-			// }
-			// if (
-			// 	ifStudentExistWithCredential.isDeleted ||
-			// 	ifStudentExistWithCredential.status === UserStatus.DELETED
-			// ) {
-			// 	throw new Error("User is deleted");
-			// }
 
 			user = await prisma.user.update({
 				where: {
@@ -209,17 +197,12 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 		throw new Error("User not found");
 	}
 
-	// if (user.status === UserStatus.BLOCKED) {
-	// 	throw new Error("User is blocked");
-	// }
-	// if (user.isDeleted || user.status === UserStatus.DELETED) {
-	// 	throw new Error("User is deleted");
-	// }
-
     const { accessToken, refreshToken } = createUserTokens(user)
 
 	return { accessToken, refreshToken };
 };
+
+
 
 
 export const authService = {
