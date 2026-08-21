@@ -1,9 +1,10 @@
 model Category {
-    id            String  @id @default(uuid())
-    name          String
-    description   String
-    imageUrl      String?
-    imagePublicId String?
+    id               String  @id @default(uuid())
+    name             String
+    description      String
+    imageUrl         String?
+    imagePublicId    String?
+    categoryServices String
 
     service Service[]
 

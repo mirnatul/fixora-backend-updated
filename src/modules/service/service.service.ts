@@ -168,6 +168,9 @@ const getService = async (query: IServiceQuery) => {
             orderBy,
             skip,
             take: limit,
+            include: {
+                category: true,
+            },
         }),
 
         prisma.service.count({
@@ -192,7 +195,10 @@ const getServiceForTechnician = async (userId: string) => {
     })
 
     const services = await prisma.service.findMany({
-        where: { technicianId: technician.id }
+        where: { technicianId: technician.id },
+        include: {
+            category: true,
+        },
     });
 
 
@@ -201,7 +207,10 @@ const getServiceForTechnician = async (userId: string) => {
 
 const getServiceById = async (serviceId: string) => {
     const service = await prisma.service.findUniqueOrThrow({
-        where: { id: serviceId }
+        where: { id: serviceId },
+        include: {
+            category: true,
+        },
     })
 
     return service;
@@ -214,7 +223,10 @@ const topServices = async () => {
         orderBy: {
             rating: "desc"
         },
-        take: 4
+        take: 4,
+        include: {
+            category: true,
+        },
     })
 
     return services;

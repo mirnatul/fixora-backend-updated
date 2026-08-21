@@ -38,7 +38,7 @@ app.use(cookieParser());
 
 
 app.get("/", async (req: Request, res: Response) => {
-    res.send("Hello, Prisma!");
+    res.send("Welcome to Fixora - A service based website for home");
 })
 
 // register

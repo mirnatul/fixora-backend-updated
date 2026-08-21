@@ -3,7 +3,6 @@ import { catchAsync } from "../../utils/catchAsync"
 import { serviceService } from "./service.service";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from 'http-status';
-import { get } from "node:http";
 import { IServiceQuery } from "./service.interface";
 
 const createService = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
