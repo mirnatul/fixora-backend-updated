@@ -96,14 +96,9 @@ const getService = async (query: IServiceQuery) => {
         });
     }
 
-    if (query.categoryName) {
+    if (query.categoryId) {
         andCondition.push({
-            category: {
-                name: {
-                    equals: query.categoryName,
-                    mode: "insensitive",
-                },
-            },
+            categoryId: query.categoryId,
         });
     }
 

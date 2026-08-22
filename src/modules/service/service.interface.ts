@@ -11,7 +11,7 @@ export interface IService {
 }
 
 export interface IServiceQuery {
-    categoryName?: string;
+    categoryId?: string;
     location?: string;
     price?: number;
     rating?: number;
